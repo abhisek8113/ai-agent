@@ -1,0 +1,28 @@
+# Candidate profile — fill these in. Used by autofill + reply drafting.
+full_name: "Abhisek Murugesan"
+email: "abhisekmurugesan@gmail.com"
+phone: ""
+location: "Coimbatore, Tamil Nadu, India"
+role_target: "Data Scientist"
+open_to: "remote / relocation"
+
+# Standard screening answers
+years_experience: "2"
+current_ctc: ""            # leave blank to deflect
+expected_ctc: ""          # leave blank to deflect
+notice_period: "Immediate / 30 days"
+visa_status: "Indian citizen, no sponsorship required for India roles"
+
+# Availability for interviews (free text used by the reply drafter)
+availability: "Weekday mornings IST work best; flexible with notice."
+
+skills:
+  - Python
+  - SQL (intermediate-advanced)
+  - Machine Learning
+  - Curriculum design
+  - Power BI
+  - LaTeX
+
+education:
+  - "M.Sc (expected 2026)"
