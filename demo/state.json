@@ -1,0 +1,149 @@
+{
+  "applications": [
+    {
+      "title": "Junior Data Scientist",
+      "company": "Tiger Analytics",
+      "location": "Remote (India)",
+      "source": "naukri",
+      "url": "https://www.naukri.com/job/40551",
+      "match_score": 91,
+      "gaps": [],
+      "keywords": [
+        "Python",
+        "SQL",
+        "EDA",
+        "feature engineering"
+      ],
+      "cover_letter": "Tiger Analytics hires for fundamentals over years on paper \u2014 which is where I'm strongest. Teaching Python and SQL daily has forced me to know EDA and feature engineering cold, not just apply them...",
+      "resume": "# Abhisek Murugesan\n**Junior Data Scientist** \u2014 strong fundamentals, remote-ready\n\n## Skills\nPython, SQL, EDA, feature engineering, clear communication",
+      "status": "pending_approval"
+    },
+    {
+      "title": "Data Scientist",
+      "company": "Zensar Technologies",
+      "location": "Coimbatore (Hybrid)",
+      "source": "linkedin",
+      "url": "https://www.linkedin.com/jobs/view/88213",
+      "match_score": 86,
+      "gaps": [
+        "Spark",
+        "MLOps"
+      ],
+      "keywords": [
+        "Python",
+        "SQL",
+        "scikit-learn",
+        "Power BI",
+        "statistics"
+      ],
+      "cover_letter": "Your Coimbatore team's focus on turning customer data into decisions is exactly the work I've been teaching others to do. As a Data Science trainer I've built and debugged dozens of end-to-end Python/scikit-learn pipelines and translated model output into Power BI dashboards stakeholders actually use...",
+      "resume": "# Abhisek Murugesan\n**Data Scientist** \u2014 Python \u00b7 SQL \u00b7 ML \u00b7 Power BI\n\n## Summary\nData Science trainer turning curriculum expertise into applied modelling...\n\n## Skills\nPython, SQL (advanced), scikit-learn, statistics, **Power BI**, data storytelling",
+      "status": "pending_approval"
+    },
+    {
+      "title": "ML Engineer",
+      "company": "Globex Corp",
+      "location": "Bengaluru",
+      "source": "indeed",
+      "url": "https://in.indeed.com/viewjob?jk=77120",
+      "match_score": 48,
+      "gaps": [
+        "Spark",
+        "Airflow",
+        "Kubernetes",
+        "3+ yrs experience"
+      ],
+      "keywords": [
+        "Python",
+        "machine learning"
+      ],
+      "cover_letter": "I'm early in the MLOps journey but bring a rigorous grasp of the modelling fundamentals your pipelines serve...",
+      "resume": "# Abhisek Murugesan\n**Aspiring ML Engineer**\n\n## Skills\nPython, ML foundations, Git",
+      "status": "pending_approval"
+    }
+  ],
+  "emails": [
+    {
+      "sender": "Priya Raman <priya@tigeranalytics.com>",
+      "subject": "Interested in your Data Scientist profile",
+      "category": "recruiter_outreach",
+      "urgency": "high",
+      "requires_reply": true,
+      "summary": "Recruiter reaching out about the Junior DS role; wants an intro call.",
+      "extracted": {
+        "company": "Tiger Analytics",
+        "role": "Junior Data Scientist",
+        "recruiter_name": "Priya Raman",
+        "next_step": "intro call",
+        "deadline": null
+      },
+      "reply": {
+        "subject": "Re: Interested in your Data Scientist profile",
+        "body": "Hi Priya,\n\nThanks for reaching out \u2014 the Junior Data Scientist role is a strong fit for where I'm headed. I'd be glad to set up an intro call.\n\nWeekday mornings IST work best for me this week; happy to work around your calendar. Shall I send a couple of slots?\n\nBest,\n[Candidate Name]",
+        "confidence": 88,
+        "tone_notes": "Warm, concrete, moves toward a call without over-committing.",
+        "draft_id": "draft_1"
+      }
+    },
+    {
+      "sender": "LinkedIn Job Alerts <jobalerts@linkedin.com>",
+      "subject": "5 new Data Scientist jobs in Coimbatore",
+      "category": "job_alert",
+      "urgency": "low",
+      "requires_reply": false,
+      "summary": "Automated LinkedIn job alert; no reply needed.",
+      "extracted": {
+        "company": null,
+        "role": "Data Scientist",
+        "recruiter_name": null,
+        "next_step": null,
+        "deadline": null
+      },
+      "reply": null
+    },
+    {
+      "sender": "TA Team <careers@zensar.com>",
+      "subject": "Zensar \u2014 Data Scientist: next steps",
+      "category": "interview_invite",
+      "urgency": "high",
+      "requires_reply": true,
+      "summary": "Invitation to a technical screen; asks for availability by Jul 28.",
+      "extracted": {
+        "company": "Zensar Technologies",
+        "role": "Data Scientist",
+        "recruiter_name": null,
+        "next_step": "technical screen",
+        "deadline": "2026-07-28"
+      },
+      "reply": {
+        "subject": "Re: Zensar \u2014 Data Scientist: next steps",
+        "body": "Hi team,\n\nDelighted to move forward with the technical screen. I'm available weekday mornings IST through next week \u2014 I can share three specific slots if that's easiest.\n\nLooking forward to it.\n\nBest,\n[Candidate Name]",
+        "confidence": 84,
+        "tone_notes": "Enthusiastic, offers concrete availability, no salary talk.",
+        "draft_id": "draft_3"
+      }
+    }
+  ],
+  "actions": [
+    {
+      "action": "scrape",
+      "detail": "source=demo keywords=Data Scientist saved=3",
+      "at": "2026-07-22T17:51:11.562020"
+    },
+    {
+      "action": "demo_tailor",
+      "detail": "tailored 3 applications",
+      "at": "2026-07-22T17:51:11.572122"
+    },
+    {
+      "action": "gmail_draft",
+      "detail": "thread=1 (simulated draft)",
+      "at": "2026-07-22T17:51:11.584162"
+    },
+    {
+      "action": "gmail_draft",
+      "detail": "thread=3 (simulated draft)",
+      "at": "2026-07-22T17:51:11.597848"
+    }
+  ]
+}

@@ -1,0 +1,358 @@
+<style>
+  :root {
+    /* Neutrals biased slightly cool/indigo — chosen, not defaulted */
+    --bg: #f4f6fa;
+    --panel: #ffffff;
+    --panel-2: #f0f2f7;
+    --ink: #151a24;
+    --ink-soft: #4a5265;
+    --ink-faint: #7b8296;
+    --line: #e2e6ef;
+    --line-strong: #cdd3e0;
+    /* Single accent: muted electric indigo */
+    --accent: #4f57d6;
+    --accent-soft: #ecedfb;
+    /* Semantic (separate from accent) */
+    --good: #1f9d6b;   --good-bg: #e4f5ee;
+    --warn: #b9791a;   --warn-bg: #fbf0dc;
+    --crit: #cf3f57;   --crit-bg: #fbe6ea;
+    --shadow: 0 1px 2px rgba(20,26,40,.06), 0 6px 20px rgba(20,26,40,.05);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1017; --panel: #161b25; --panel-2: #1d2431;
+      --ink: #eaedf5; --ink-soft: #a8b0c2; --ink-faint: #6c7488;
+      --line: #262d3b; --line-strong: #333c4d;
+      --accent: #7c84f2; --accent-soft: #23273f;
+      --good: #3cc98d; --good-bg: #13291f;
+      --warn: #e0a341; --warn-bg: #2c2312;
+      --crit: #ec6379; --crit-bg: #2e1620;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1017; --panel: #161b25; --panel-2: #1d2431;
+    --ink: #eaedf5; --ink-soft: #a8b0c2; --ink-faint: #6c7488;
+    --line: #262d3b; --line-strong: #333c4d;
+    --accent: #7c84f2; --accent-soft: #23273f;
+    --good: #3cc98d; --good-bg: #13291f;
+    --warn: #e0a341; --warn-bg: #2c2312;
+    --crit: #ec6379; --crit-bg: #2e1620;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f6fa; --panel: #ffffff; --panel-2: #f0f2f7;
+    --ink: #151a24; --ink-soft: #4a5265; --ink-faint: #7b8296;
+    --line: #e2e6ef; --line-strong: #cdd3e0;
+    --accent: #4f57d6; --accent-soft: #ecedfb;
+    --good: #1f9d6b; --good-bg: #e4f5ee;
+    --warn: #b9791a; --warn-bg: #fbf0dc;
+    --crit: #cf3f57; --crit-bg: #fbe6ea;
+    --shadow: 0 1px 2px rgba(20,26,40,.06), 0 6px 20px rgba(20,26,40,.05);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .wrap {
+    font-family: var(--ui); background: var(--bg); color: var(--ink);
+    min-height: 100vh; padding: 28px clamp(16px, 4vw, 44px) 60px;
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- Top bar ---- */
+  .topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; margin-bottom: 8px; }
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+  .brand h1 { font-size: 20px; margin: 0; letter-spacing: -.02em; font-weight: 650; }
+  .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 3px var(--good-bg); align-self: center; }
+  .brand .tag { font-size: 12px; color: var(--ink-faint); font-family: var(--mono); }
+  .rails { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
+  .rail {
+    display: flex; align-items: center; gap: 9px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 10px; padding: 8px 13px; box-shadow: var(--shadow);
+  }
+  .rail .lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-faint); }
+  .rail .val { font-size: 13px; font-family: var(--mono); font-weight: 600; }
+  .gauge { width: 46px; height: 6px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
+  .gauge > i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+  .rail.ok .val { color: var(--good); }
+
+  .assure {
+    display: flex; align-items: center; gap: 10px; margin: 18px 0 22px;
+    background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius: 12px; padding: 12px 16px; font-size: 13.5px; color: var(--ink-soft);
+  }
+  .assure b { color: var(--ink); font-weight: 600; }
+  .assure .lock { font-size: 15px; }
+
+  /* ---- Columns ---- */
+  .cols { display: grid; grid-template-columns: 1fr; gap: 26px; }
+  @media (min-width: 940px) { .cols { grid-template-columns: 1.05fr .95fr; } }
+  .col > h2 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-faint);
+    margin: 0 0 13px; display: flex; align-items: center; gap: 8px; font-weight: 650;
+  }
+  .col > h2 .count { font-family: var(--mono); color: var(--accent); }
+
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+
+  /* ---- Application card ---- */
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 17px; box-shadow: var(--shadow); transition: opacity .25s, border-color .2s;
+  }
+  .card .row1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .card h3 { margin: 0; font-size: 15.5px; font-weight: 620; letter-spacing: -.01em; }
+  .card .co { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+  .card .meta { font-size: 11.5px; color: var(--ink-faint); font-family: var(--mono); margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .src { text-transform: uppercase; letter-spacing: .05em; padding: 1px 6px; border-radius: 5px; background: var(--panel-2); border: 1px solid var(--line); }
+
+  .score { text-align: right; flex-shrink: 0; min-width: 78px; }
+  .score .num { font-family: var(--mono); font-size: 22px; font-weight: 680; line-height: 1; font-variant-numeric: tabular-nums; }
+  .score .of { font-size: 11px; color: var(--ink-faint); }
+  .meter { height: 5px; border-radius: 4px; background: var(--panel-2); margin-top: 6px; overflow: hidden; }
+  .meter > i { display: block; height: 100%; border-radius: 4px; }
+  .s-good .num { color: var(--good); }   .s-good .meter > i { background: var(--good); }
+  .s-mid  .num { color: var(--warn); }    .s-mid  .meter > i { background: var(--warn); }
+  .s-low  .num { color: var(--crit); }    .s-low  .meter > i { background: var(--crit); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
+  .chip { font-size: 11.5px; font-family: var(--mono); padding: 3px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent); }
+  .gap-line { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
+  .gap { font-size: 11.5px; font-family: var(--mono); padding: 3px 8px; border-radius: 6px; background: var(--warn-bg); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 25%, transparent); }
+  .none-gap { color: var(--good); font-size: 12px; }
+
+  details.doc { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 11px; }
+  details.doc summary { cursor: pointer; font-size: 12.5px; color: var(--accent); font-weight: 550; list-style: none; display: flex; align-items: center; gap: 6px; }
+  details.doc summary::-webkit-details-marker { display: none; }
+  details.doc summary::before { content: "▸"; font-size: 10px; transition: transform .15s; }
+  details.doc[open] summary::before { transform: rotate(90deg); }
+  .letter { font-size: 13px; color: var(--ink-soft); margin-top: 9px; line-height: 1.6; background: var(--panel-2); border-radius: 9px; padding: 12px 13px; }
+
+  .actions { display: flex; gap: 9px; margin-top: 14px; }
+  button {
+    font-family: var(--ui); font-size: 13px; font-weight: 550; cursor: pointer;
+    border-radius: 9px; padding: 8px 15px; border: 1px solid var(--line-strong);
+    background: var(--panel); color: var(--ink); transition: all .15s;
+  }
+  button:hover { border-color: var(--accent); }
+  button.approve { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button.approve:hover { filter: brightness(1.07); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .card.approved { border-color: color-mix(in srgb, var(--good) 45%, var(--line)); }
+  .card.skipped { opacity: .48; }
+  .verdict { margin-top: 13px; font-size: 12.5px; font-weight: 550; display: none; align-items: center; gap: 7px; padding: 9px 12px; border-radius: 9px; }
+  .card.approved .verdict.v-appr { display: flex; background: var(--good-bg); color: var(--good); }
+  .card.skipped .verdict.v-skip { display: flex; background: var(--panel-2); color: var(--ink-faint); }
+  .card.approved .actions, .card.skipped .actions { display: none; }
+
+  /* ---- Email card ---- */
+  .mail { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 15px 16px; box-shadow: var(--shadow); }
+  .mail .mrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: 10.5px; font-family: var(--mono); text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+  .b-recruiter { background: var(--accent-soft); color: var(--accent); }
+  .b-interview { background: var(--good-bg); color: var(--good); }
+  .b-alert { background: var(--panel-2); color: var(--ink-faint); }
+  .urg { font-size: 10.5px; font-family: var(--mono); padding: 2px 7px; border-radius: 6px; }
+  .u-high { background: var(--crit-bg); color: var(--crit); }
+  .u-low { background: var(--panel-2); color: var(--ink-faint); }
+  .mail h4 { margin: 9px 0 2px; font-size: 14.5px; font-weight: 600; letter-spacing: -.01em; }
+  .mail .from { font-size: 12px; color: var(--ink-faint); font-family: var(--mono); }
+  .mail .summary { font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
+  .extracted { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 12px; }
+  .extracted div { color: var(--ink-soft); }
+  .extracted b { color: var(--ink-faint); font-weight: 500; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; margin-right: 5px; }
+  .deadline { color: var(--warn); font-weight: 600; }
+
+  .draft { margin-top: 12px; border-top: 1px dashed var(--line-strong); padding-top: 12px; }
+  .draft .dhead { display: flex; align-items: center; gap: 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); }
+  .conf { display: flex; align-items: center; gap: 6px; margin-left: auto; text-transform: none; letter-spacing: 0; }
+  .conf .cnum { font-family: var(--mono); font-weight: 650; color: var(--good); font-size: 12px; }
+  .conf.low .cnum { color: var(--warn); }
+  .cbar { width: 40px; height: 5px; border-radius: 3px; background: var(--panel-2); overflow: hidden; }
+  .cbar > i { display: block; height: 100%; background: var(--good); }
+  .conf.low .cbar > i { background: var(--warn); }
+  .draft .subj { font-size: 12.5px; font-family: var(--mono); color: var(--ink-soft); margin: 9px 0 6px; }
+  .draft .body { font-size: 13px; color: var(--ink); white-space: pre-wrap; line-height: 1.55; background: var(--panel-2); border-radius: 9px; padding: 12px 13px; }
+  .draft .saved { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--good); background: var(--good-bg); padding: 5px 10px; border-radius: 7px; font-family: var(--mono); }
+  .noreply { margin-top: 11px; font-size: 12px; color: var(--ink-faint); font-style: italic; }
+
+  /* ---- Action log ---- */
+  .log { margin-top: 34px; }
+  .log h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-faint); margin: 0 0 12px; font-weight: 650; }
+  .log ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel); box-shadow: var(--shadow); }
+  .log li { display: flex; align-items: center; gap: 14px; padding: 10px 16px; font-size: 12.5px; border-bottom: 1px solid var(--line); }
+  .log li:last-child { border-bottom: none; }
+  .log .t { font-family: var(--mono); color: var(--ink-faint); font-size: 11.5px; min-width: 66px; font-variant-numeric: tabular-nums; }
+  .log .act { font-family: var(--mono); color: var(--accent); font-weight: 600; min-width: 118px; }
+  .log .det { color: var(--ink-soft); }
+  .foot { margin-top: 26px; font-size: 11.5px; color: var(--ink-faint); text-align: center; font-family: var(--mono); }
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Job Application Agent</h1>
+      <span class="tag">demo run · abhisek8113/ai-agent</span>
+    </div>
+    <div class="rails">
+      <div class="rail">
+        <span class="lbl">Applications today</span>
+        <span class="val" id="usage">0/20</span>
+        <span class="gauge"><i id="usagebar" style="width:0%"></i></span>
+      </div>
+      <div class="rail ok">
+        <span class="lbl">Kill switch</span>
+        <span class="val">ACTIVE</span>
+      </div>
+      <div class="rail">
+        <span class="lbl">Tailoring model</span>
+        <span class="val">sonnet-4-6</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="assure">
+    <span class="lock">&#128274;</span>
+    <span><b>Nothing submits or sends on its own.</b> Applications wait for your approval before you submit on the portal; replies land in Gmail Drafts. Rate limit 20/day, random 30&ndash;120s delays, and a <span style="font-family:var(--mono)">PAUSE_ALL</span> kill switch all enforced.</span>
+  </div>
+
+  <div class="cols">
+    <!-- Applications -->
+    <div class="col">
+      <h2>Pending applications <span class="count" id="appcount">3</span></h2>
+      <div class="stack" id="apps"></div>
+    </div>
+
+    <!-- Inbox -->
+    <div class="col">
+      <h2>Classified inbox <span class="count">3</span></h2>
+      <div class="stack" id="mail"></div>
+    </div>
+  </div>
+
+  <div class="log">
+    <h2>Action log &mdash; every automated step, timestamped</h2>
+    <ol id="log"></ol>
+  </div>
+
+  <div class="foot">Rendered from a live end-to-end pipeline run &middot; SQLite state exported to the review dashboard</div>
+</div>
+
+<script>
+  const APPS = [
+    {title:"Junior Data Scientist", co:"Tiger Analytics", loc:"Remote (India)", src:"naukri",
+     score:91, gaps:[], keywords:["Python","SQL","EDA","feature engineering"],
+     letter:"Tiger Analytics hires for fundamentals over years on paper — which is where I'm strongest. Teaching Python and SQL daily has forced me to know EDA and feature engineering cold, not just apply them…"},
+    {title:"Data Scientist", co:"Zensar Technologies", loc:"Coimbatore (Hybrid)", src:"linkedin",
+     score:86, gaps:["Spark","MLOps"], keywords:["Python","SQL","scikit-learn","Power BI","statistics"],
+     letter:"Your Coimbatore team's focus on turning customer data into decisions is exactly the work I've been teaching others to do. As a Data Science trainer I've built and debugged dozens of end-to-end Python/scikit-learn pipelines and translated model output into Power BI dashboards stakeholders actually use…"},
+    {title:"ML Engineer", co:"Globex Corp", loc:"Bengaluru", src:"indeed",
+     score:48, gaps:["Spark","Airflow","Kubernetes","3+ yrs experience"], keywords:["Python","machine learning"],
+     letter:"I'm early in the MLOps journey but bring a rigorous grasp of the modelling fundamentals your pipelines serve…"}
+  ];
+  const MAIL = [
+    {cat:"recruiter_outreach", badge:"b-recruiter", label:"recruiter", urg:"high", subject:"Interested in your Data Scientist profile",
+     from:"Priya Raman <priya@tigeranalytics.com>", summary:"Recruiter reaching out about the Junior DS role; wants an intro call.",
+     ex:{Company:"Tiger Analytics", Role:"Junior Data Scientist", "Next step":"intro call"},
+     reply:{conf:88, subj:"Re: Interested in your Data Scientist profile",
+       body:"Hi Priya,\n\nThanks for reaching out — the Junior Data Scientist role is a strong fit for where I'm headed. I'd be glad to set up an intro call.\n\nWeekday mornings IST work best for me this week; happy to work around your calendar. Shall I send a couple of slots?\n\nBest,\n[Candidate Name]", draft:"draft_1"}},
+    {cat:"interview_invite", badge:"b-interview", label:"interview invite", urg:"high", subject:"Zensar — Data Scientist: next steps",
+     from:"TA Team <careers@zensar.com>", summary:"Invitation to a technical screen; asks for availability by Jul 28.",
+     ex:{Company:"Zensar Technologies", Role:"Data Scientist", "Next step":"technical screen", Deadline:"2026-07-28"},
+     reply:{conf:84, subj:"Re: Zensar — Data Scientist: next steps",
+       body:"Hi team,\n\nDelighted to move forward with the technical screen. I'm available weekday mornings IST through next week — I can share three specific slots if that's easiest.\n\nLooking forward to it.\n\nBest,\n[Candidate Name]", draft:"draft_3"}},
+    {cat:"job_alert", badge:"b-alert", label:"job alert", urg:"low", subject:"5 new Data Scientist jobs in Coimbatore",
+     from:"LinkedIn Job Alerts <jobalerts@linkedin.com>", summary:"Automated LinkedIn job alert; no reply needed.",
+     ex:{Role:"Data Scientist"}, reply:null}
+  ];
+  const LOG = [
+    {t:"17:51:11", act:"scrape", det:"source=linkedin,naukri,indeed · saved=3 new jobs"},
+    {t:"17:51:11", act:"tailor", det:"tailored 3 applications (match 48–91%)"},
+    {t:"17:51:11", act:"classify", det:"classified 3 emails — 2 need a reply"},
+    {t:"17:51:11", act:"gmail_draft", det:"reply drafted → Gmail Drafts (thread 1)"},
+    {t:"17:51:11", act:"gmail_draft", det:"reply drafted → Gmail Drafts (thread 3)"}
+  ];
+
+  const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const tier = s => s >= 75 ? "s-good" : s >= 55 ? "s-mid" : "s-low";
+  let submitted = 0;
+  const CAP = 20;
+
+  function bumpUsage() {
+    document.getElementById('usage').textContent = submitted + "/" + CAP;
+    document.getElementById('usagebar').style.width = (submitted/CAP*100) + "%";
+  }
+
+  function renderApps() {
+    document.getElementById('apps').innerHTML = APPS.map((a, i) => `
+      <div class="card" id="app${i}">
+        <div class="row1">
+          <div>
+            <h3>${esc(a.title)}</h3>
+            <div class="co">${esc(a.co)}</div>
+            <div class="meta"><span class="src">${a.src}</span><span>${esc(a.loc)}</span></div>
+          </div>
+          <div class="score ${tier(a.score)}">
+            <div class="num">${a.score}<span class="of">%</span></div>
+            <div class="of">match</div>
+            <div class="meter"><i style="width:${a.score}%"></i></div>
+          </div>
+        </div>
+        <div class="chips">${a.keywords.map(k => `<span class="chip">${esc(k)}</span>`).join('')}</div>
+        <div class="gap-line">${a.gaps.length
+          ? '<span style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint)">gaps</span>' + a.gaps.map(g => `<span class="gap">${esc(g)}</span>`).join('')
+          : '<span class="none-gap">&#10003; No skill gaps flagged</span>'}</div>
+        <details class="doc"><summary>View tailored cover letter</summary>
+          <div class="letter">${esc(a.letter)}</div>
+        </details>
+        <div class="actions">
+          <button class="approve" onclick="approve(${i})">Approve</button>
+          <button onclick="skip(${i})">Skip</button>
+        </div>
+        <div class="verdict v-appr">&#10003; Approved &mdash; submit manually on the portal, then mark submitted</div>
+        <div class="verdict v-skip">Skipped</div>
+      </div>`).join('');
+  }
+
+  function approve(i){ const c=document.getElementById('app'+i); if(c.classList.contains('approved'))return; c.classList.remove('skipped'); c.classList.add('approved'); submitted++; bumpUsage(); }
+  function skip(i){ document.getElementById('app'+i).classList.add('skipped'); }
+
+  function renderMail() {
+    document.getElementById('mail').innerHTML = MAIL.map(m => `
+      <div class="mail">
+        <div class="mrow">
+          <span class="badge ${m.badge}">${m.label}</span>
+          <span class="urg ${m.urg==='high'?'u-high':'u-low'}">${m.urg} urgency</span>
+        </div>
+        <h4>${esc(m.subject)}</h4>
+        <div class="from">${esc(m.from)}</div>
+        <div class="summary">${esc(m.summary)}</div>
+        <div class="extracted">${Object.entries(m.ex).map(([k,v]) =>
+          `<div><b>${k}</b>${k==='Deadline'?`<span class="deadline">${esc(v)}</span>`:esc(v)}</div>`).join('')}</div>
+        ${m.reply ? `
+          <div class="draft">
+            <div class="dhead">Drafted reply
+              <span class="conf ${m.reply.conf<70?'low':''}">
+                <span class="cbar"><i style="width:${m.reply.conf}%"></i></span>
+                <span class="cnum">${m.reply.conf}%</span> confident
+              </span>
+            </div>
+            <div class="subj">${esc(m.reply.subj)}</div>
+            <div class="body">${esc(m.reply.body)}</div>
+            <div class="saved">&#128190; Saved to Gmail Drafts &middot; ${m.reply.draft}</div>
+          </div>`
+        : `<div class="noreply">Job alert &mdash; no reply needed, logged for reference.</div>`}
+      </div>`).join('');
+  }
+
+  function renderLog() {
+    document.getElementById('log').innerHTML = LOG.map(l =>
+      `<li><span class="t">${l.t}</span><span class="act">${l.act}</span><span class="det">${esc(l.det)}</span></li>`).join('');
+  }
+
+  renderApps(); renderMail(); renderLog(); bumpUsage();
+</script>
