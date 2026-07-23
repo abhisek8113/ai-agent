@@ -62,6 +62,9 @@ class Settings(BaseSettings):
         default="Coimbatore", alias="JOB_SEARCH_LOCATION"
     )
     headless: bool = Field(default=True, alias="HEADLESS")
+    # Cap on how many cards a single scraper run will process, so a page with
+    # dozens of results doesn't blow past the rate limit or run for minutes.
+    max_cards_per_run: int = Field(default=25, alias="MAX_CARDS_PER_RUN")
 
     def resolve(self, relative: str) -> Path:
         """Resolve a path setting against the project root if not absolute."""

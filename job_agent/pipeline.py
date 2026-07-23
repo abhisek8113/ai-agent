@@ -50,9 +50,13 @@ def scrape_all() -> int:
         logger.warning("PAUSE_ALL set; scrape_all skipped")
         return 0
     total = 0
-    for scraper_cls in SCRAPERS:
+    for idx, scraper_cls in enumerate(SCRAPERS):
+        scraper = scraper_cls()
+        if idx > 0:
+            # Random delay between board navigations (not between cards).
+            scraper.polite_delay()
         try:
-            saved = scraper_cls().run()
+            saved = scraper.run()
             total += len(saved)
         except Exception as exc:  # keep other boards running if one fails
             logger.exception("Scraper {} failed: {}", scraper_cls.source, exc)

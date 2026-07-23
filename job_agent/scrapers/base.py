@@ -34,6 +34,18 @@ USER_AGENTS = [
 ]
 
 
+def _strip_query(value: str | None) -> str | None:
+    """Drop everything after '?' so tracking params don't defeat dedup.
+
+    LinkedIn/Naukri/Indeed append per-session query strings to job URLs, which
+    makes the same posting look unique every scrape. Normalising to the path
+    keeps dedup stable.
+    """
+    if not value:
+        return value
+    return value.split("?", 1)[0]
+
+
 class PausedError(RuntimeError):
     """Raised when the PAUSE_ALL kill switch is engaged."""
 
@@ -90,21 +102,46 @@ class BaseScraper(ABC):
         location = location or settings.job_search_location
         logger.info("[{}] scraping '{}' in '{}'", self.source, keywords, location)
 
-        saved: list[Job] = []
-        for scraped in self.fetch_jobs(keywords, location):
+        saved = kept = dropped = 0
+        saved_jobs: list[Job] = []
+        # Note: polite_delay() is NOT called per card — a single search page is
+        # one navigation. Delays belong between page navigations (handled by
+        # the pipeline between scrapers, and inside a scraper if it paginates).
+        for i, scraped in enumerate(self.fetch_jobs(keywords, location)):
+            if i >= settings.max_cards_per_run:
+                logger.info(
+                    "[{}] hit MAX_CARDS_PER_RUN={}, stopping",
+                    self.source, settings.max_cards_per_run,
+                )
+                break
+            scraped.url = _strip_query(scraped.url)
+            scraped.external_id = _strip_query(scraped.external_id) or scraped.url or ""
+
             if self.dry_run:
-                logger.info("[dry-run] would save: {} @ {}", scraped.title, scraped.company)
+                logger.info(
+                    "[dry-run] kept: {} @ {} -> {}",
+                    scraped.title, scraped.company, scraped.url,
+                )
+                kept += 1
                 continue
+
             job = self._persist(scraped)
             if job is not None:
-                saved.append(job)
-            self.polite_delay()
+                saved_jobs.append(job)
+                saved += 1
+                kept += 1
+            else:
+                dropped += 1  # duplicate — reason already logged in _persist
 
+        logger.info(
+            "[{}] cards processed -> saved={} duplicates_dropped={} kept={}",
+            self.source, saved, dropped, kept,
+        )
         log_action(
             "scrape",
-            f"source={self.source} keywords={keywords} saved={len(saved)}",
+            f"source={self.source} keywords={keywords} saved={saved} dropped={dropped}",
         )
-        return saved
+        return saved_jobs
 
     def _persist(self, scraped: ScrapedJob) -> Job | None:
         """Insert a job, ignoring duplicates already stored."""
@@ -116,6 +153,10 @@ class BaseScraper(ABC):
                 )
             )
             if existing is not None:
+                logger.debug(
+                    "[{}] skipped: duplicate external_id={}",
+                    self.source, scraped.external_id,
+                )
                 return None
             job = Job(
                 source=scraped.source,
@@ -131,6 +172,10 @@ class BaseScraper(ABC):
                 session.flush()
             except IntegrityError:
                 session.rollback()
+                logger.debug(
+                    "[{}] skipped: duplicate (race) external_id={}",
+                    self.source, scraped.external_id,
+                )
                 return None
             session.expunge(job)
             return job

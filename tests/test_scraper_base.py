@@ -55,3 +55,23 @@ def test_kill_switch_blocks_run(db, monkeypatch):
     monkeypatch.setattr(settings, "pause_all", True)
     with pytest.raises(PausedError):
         FakeScraper(_jobs()).run()
+
+
+def test_query_params_stripped_for_dedup(db):
+    """Same posting with different tracking params must dedup to one row."""
+    first = [ScrapedJob(source="fake", external_id="", title="DS",
+                        url="https://x.com/job/9?trk=abc&ref=1")]
+    second = [ScrapedJob(source="fake", external_id="", title="DS",
+                         url="https://x.com/job/9?trk=zzz&ref=9")]
+    assert len(FakeScraper(first).run()) == 1
+    assert FakeScraper(second).run() == []  # same normalized URL -> duplicate
+    with get_session() as session:
+        assert session.query(Job).count() == 1
+
+
+def test_max_cards_per_run_enforced(db, monkeypatch):
+    monkeypatch.setattr(settings, "max_cards_per_run", 2)
+    many = [ScrapedJob(source="fake", external_id=str(n), title=f"DS {n}")
+            for n in range(10)]
+    saved = FakeScraper(many).run()
+    assert len(saved) == 2
