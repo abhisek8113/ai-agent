@@ -171,23 +171,28 @@ def tab_jobs(profile: dict, filters: dict, resume: str) -> None:
         scored.append((fit, job))
     scored.sort(key=lambda t: t[0], reverse=True)
 
+    cap = settings.max_bulk_tailor
+    batch = scored[:cap]  # daily-cap guard: only tailor up to the configured cap
     head = st.columns([3, 1])
-    head[0].caption(f"{len(scored)} of {len(jobs)} jobs match your filters.")
-    if head[1].button(f"Tailor all {len(scored)}", disabled=not scored):
+    label = f"{len(scored)} of {len(jobs)} jobs match your filters."
+    if len(scored) > cap:
+        label += f" Bulk tailor is capped at {cap}/run (top-fit first)."
+    head[0].caption(label)
+    if head[1].button(f"Tailor top {len(batch)}", disabled=not batch):
         if not resume:
             st.warning("Upload a master resume first (sidebar).")
         else:
             progress = st.progress(0.0, text="Tailoring…")
             done = 0
-            for i, (_fit, job) in enumerate(scored):
+            for i, (_fit, job) in enumerate(batch):
                 try:
                     _tailor(job.id, resume)
                     done += 1
                 except Exception as exc:  # keep going if one job fails
                     st.warning(f"Skipped {job.title}: {exc}")
-                progress.progress((i + 1) / len(scored), text=f"Tailored {done}/{len(scored)}")
-            log_action("bulk_tailor", f"tailored={done}")
-            st.success(f"Tailored {done} jobs — see the 'Ready to apply' tab.")
+                progress.progress((i + 1) / len(batch), text=f"Tailored {done}/{len(batch)}")
+            log_action("bulk_tailor", f"tailored={done} cap={cap}")
+            st.success(f"Tailored {done} jobs (cap {cap}) — see the 'Ready to apply' tab.")
             st.rerun()
     for fit, job in scored:
         with st.container(border=True):

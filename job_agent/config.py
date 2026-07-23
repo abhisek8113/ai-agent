@@ -95,6 +95,9 @@ class Settings(BaseSettings):
     adzuna_country: str = Field(default="in", alias="ADZUNA_COUNTRY")
     # Where rendered resume files are written, one per application.
     resume_output_dir: str = Field(default="output/resumes", alias="RESUME_OUTPUT_DIR")
+    # Cap on how many jobs the bulk "Tailor all" button processes in one run,
+    # so a large filtered list can't rack up surprise Claude API cost.
+    max_bulk_tailor: int = Field(default=20, alias="MAX_BULK_TAILOR")
 
     def resolve(self, relative: str) -> Path:
         """Resolve a path setting against the project root if not absolute."""
