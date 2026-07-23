@@ -33,8 +33,18 @@ class LinkedInScraper(BaseScraper):
             page.goto(url, wait_until="domcontentloaded")
             cards = page.query_selector_all("div.base-card")
             logger.info("[linkedin] found {} cards", len(cards))
-            for card in cards:
-                yield self._parse_card(card)
+            for i, card in enumerate(cards):
+                job = self._parse_card(card)
+                # Log what we parsed and skip cards missing required fields,
+                # so an empty/partial result is diagnosable from the logs.
+                logger.debug(
+                    "[linkedin] card {}: title={!r} company={!r} url={!r}",
+                    i, job.title, job.company, job.url,
+                )
+                if not (job.title and job.title != "Unknown" and job.url):
+                    logger.warning("[linkedin] card {} skipped: missing fields", i)
+                    continue
+                yield job
 
     def _parse_card(self, card) -> ScrapedJob:
         """Extract a job from one search-result card element."""

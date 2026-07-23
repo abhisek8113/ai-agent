@@ -28,8 +28,16 @@ class IndeedScraper(BaseScraper):
             page.goto(url, wait_until="domcontentloaded")
             cards = page.query_selector_all("div.job_seen_beacon")
             logger.info("[indeed] found {} cards", len(cards))
-            for card in cards:
-                yield self._parse_card(card)
+            for i, card in enumerate(cards):
+                job = self._parse_card(card)
+                logger.debug(
+                    "[indeed] card {}: title={!r} company={!r} url={!r}",
+                    i, job.title, job.company, job.url,
+                )
+                if not (job.title and job.title != "Unknown" and job.url):
+                    logger.warning("[indeed] card {} skipped: missing fields", i)
+                    continue
+                yield job
 
     def _parse_card(self, card) -> ScrapedJob:
         def text(selector: str) -> str | None:

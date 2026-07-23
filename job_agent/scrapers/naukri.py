@@ -32,8 +32,16 @@ class NaukriScraper(BaseScraper):
             page.wait_for_selector("div.srp-jobtuple-wrapper", timeout=15000)
             cards = page.query_selector_all("div.srp-jobtuple-wrapper")
             logger.info("[naukri] found {} cards", len(cards))
-            for card in cards:
-                yield self._parse_card(card)
+            for i, card in enumerate(cards):
+                job = self._parse_card(card)
+                logger.debug(
+                    "[naukri] card {}: title={!r} company={!r} url={!r}",
+                    i, job.title, job.company, job.url,
+                )
+                if not (job.title and job.title != "Unknown" and job.url):
+                    logger.warning("[naukri] card {} skipped: missing fields", i)
+                    continue
+                yield job
 
     def _parse_card(self, card) -> ScrapedJob:
         def text(selector: str) -> str | None:
