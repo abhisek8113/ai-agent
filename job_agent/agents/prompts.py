@@ -37,6 +37,8 @@ RULES:
 - Cover letter: no "I am writing to apply..." — start with a concrete hook
 - Match Indian English conventions
 - Keep resume <= 2 pages when rendered
+
+- Respond with JSON only, no prose.
 """
 
 EMAIL_CLASSIFIER_PROMPT = """\
@@ -65,6 +67,8 @@ RULES:
 - Job alerts from LinkedIn/Naukri = "job_alert", requires_reply=false
 - Any human recruiter reaching out = "recruiter_outreach", urgency=high
 - Rejections still get logged but no reply needed
+
+- Respond with JSON only, no prose.
 """
 
 REPLY_DRAFTER_PROMPT = """\
@@ -91,6 +95,8 @@ RULES:
 - Sign off as [Candidate Name] — the dashboard fills this in
 - If asked a question you don't know the answer to, say so and offer to follow up
 - Indian English, professional but warm
+
+- Respond with JSON only, no prose.
 """
 
 SCREENING_ANSWERER_PROMPT = """\
@@ -113,4 +119,12 @@ RULES:
 - Open-ended "why do you want this role" -> flag_for_review=true,
   provide a draft
 - Never fabricate certifications, degrees, or references
+
+- Respond with JSON only, no prose.
 """
+
+# Aliases matching the naming used elsewhere in the project docs.
+TAILOR_SYSTEM = RESUME_TAILOR_PROMPT
+CLASSIFIER_SYSTEM = EMAIL_CLASSIFIER_PROMPT
+REPLIER_SYSTEM = REPLY_DRAFTER_PROMPT
+SCREENING_SYSTEM = SCREENING_ANSWERER_PROMPT

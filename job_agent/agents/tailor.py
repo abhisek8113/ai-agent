@@ -5,10 +5,26 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from loguru import logger
+from pydantic import BaseModel, Field, field_validator
 
 from job_agent.agents.client import complete_json
 from job_agent.agents.prompts import RESUME_TAILOR_PROMPT
 from job_agent.config import settings
+
+
+class TailorOutput(BaseModel):
+    """Pydantic schema the model's JSON must satisfy."""
+
+    tailored_resume_md: str = ""
+    cover_letter_md: str = ""
+    match_score: int = 0
+    gaps: list[str] = Field(default_factory=list)
+    keywords_used: list[str] = Field(default_factory=list)
+
+    @field_validator("match_score")
+    @classmethod
+    def _clamp(cls, v: int) -> int:
+        return max(0, min(100, int(v)))
 
 
 @dataclass
@@ -31,11 +47,24 @@ def tailor_resume(master_resume_md: str, job_description: str) -> TailorResult:
     data = complete_json(
         RESUME_TAILOR_PROMPT, user_content, model=settings.tailor_model
     )
-    logger.info("Tailored resume, match_score={}", data.get("match_score"))
+    out = TailorOutput.model_validate(data)
+    logger.info("Tailored resume, match_score={}", out.match_score)
     return TailorResult(
-        tailored_resume_md=data.get("tailored_resume_md", ""),
-        cover_letter_md=data.get("cover_letter_md", ""),
-        match_score=int(data.get("match_score", 0)),
-        gaps=list(data.get("gaps", [])),
-        keywords_used=list(data.get("keywords_used", [])),
+        tailored_resume_md=out.tailored_resume_md,
+        cover_letter_md=out.cover_letter_md,
+        match_score=out.match_score,
+        gaps=out.gaps,
+        keywords_used=out.keywords_used,
     )
+
+
+def tailor_for_job(job, master_resume_md: str) -> dict:
+    """Tailor for a Job row and return a dict the caller saves to Application."""
+    result = tailor_resume(master_resume_md, job.description or job.title or "")
+    return {
+        "tailored_resume_md": result.tailored_resume_md,
+        "cover_letter_md": result.cover_letter_md,
+        "match_score": result.match_score,
+        "gaps": result.gaps,
+        "keywords_used": result.keywords_used,
+    }

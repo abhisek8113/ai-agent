@@ -29,6 +29,17 @@ DIRECT_FIELDS = {
     "experience": "years_experience",
 }
 
+# Apply-button variants across the major Indian job portals. We use these to
+# *locate* (never click) the apply/submit control so we can stop right before it.
+APPLY_BUTTON_SELECTORS = [
+    "button:has-text('Easy Apply')",       # LinkedIn
+    "button:has-text('Apply')",            # generic / Naukri
+    "button#apply-button",                 # Naukri quick apply
+    "button:has-text('Submit application')",
+    "button:has-text('Submit')",
+    "#indeedApplyButton",                  # Indeed
+]
+
 
 @dataclass
 class FillReport:
@@ -97,3 +108,78 @@ class FormBot:
             if val:
                 return val
         return None
+
+    @staticmethod
+    def find_apply_button(page):
+        """Locate (never click) the apply/submit button, trying known variants."""
+        for selector in APPLY_BUTTON_SELECTORS:
+            el = page.query_selector(selector)
+            if el:
+                logger.info("Detected apply control via selector: {}", selector)
+                return el, selector
+        logger.warning("No apply button detected — page layout may have changed.")
+        return None, None
+
+
+def fill_application(job, application, headless: bool = False, dry_run: bool = False):
+    """Open the job URL, fill the form from the profile, and STOP before submit.
+
+    In dry-run mode, actions are logged and no browser is launched. In live
+    mode the browser stays open, paused at the submit button, until you either
+    click submit yourself in the browser or press Enter here to abort.
+    """
+    from job_agent.pipeline import load_candidate_profile
+
+    if settings.pause_all:
+        raise RuntimeError("PAUSE_ALL is set; autofill halted.")
+    check_daily_limit()
+
+    profile = load_candidate_profile()
+    profile_text = "\n".join(f"{k}: {v}" for k, v in profile.items())
+    bot = FormBot(profile)
+
+    if dry_run:
+        logger.info("[dry-run] would open {} and fill fields from profile", job.url)
+        logger.info("[dry-run] would STOP before submit (never auto-submits)")
+        return FillReport()
+
+    from job_agent.scrapers._playwright import stealth_page
+
+    settings_headless = settings.headless
+    settings.headless = headless
+    try:
+        with stealth_page("Mozilla/5.0") as page:
+            page.goto(job.url, wait_until="domcontentloaded")
+            report = bot.fill(page, profile_text)
+            el, selector = bot.find_apply_button(page)
+            with get_session_notes(application, report):
+                pass
+            print("\n" + "=" * 60)
+            print("Ready to submit — review the browser.")
+            print("Click the apply/submit button IN THE BROWSER to submit,")
+            print("or press Enter here to ABORT without submitting.")
+            print("=" * 60)
+            try:
+                input()
+            except (KeyboardInterrupt, EOFError):
+                pass
+            logger.warning("Autofill session ended WITHOUT auto-submitting.")
+            return report
+    finally:
+        settings.headless = settings_headless
+
+
+from contextlib import contextmanager
+
+
+@contextmanager
+def get_session_notes(application, report: FillReport):
+    """Persist the filled-field summary to Application.notes for the audit trail."""
+    from job_agent.db.session import get_session
+
+    with get_session() as session:
+        app = session.get(type(application), application.id)
+        if app is not None:
+            filled = ", ".join(report.filled.keys())
+            app.notes = (app.notes or "") + f"\nautofilled: {filled}"
+    yield

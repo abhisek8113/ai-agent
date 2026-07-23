@@ -85,6 +85,48 @@ def fetch_unread(max_results: int = 20) -> list[InboxMessage]:
     return messages
 
 
+def fetch_unread_since(since, max_results: int = 50) -> list[InboxMessage]:
+    """Return unread inbox messages received after ``since`` (a datetime)."""
+    epoch = int(since.timestamp())
+    service = _service()
+    resp = (
+        service.users()
+        .messages()
+        .list(userId="me", q=f"is:unread in:inbox after:{epoch}", maxResults=max_results)
+        .execute()
+    )
+    messages: list[InboxMessage] = []
+    for ref in resp.get("messages", []):
+        full = (
+            service.users().messages().get(userId="me", id=ref["id"], format="full").execute()
+        )
+        headers = full.get("payload", {}).get("headers", [])
+        messages.append(
+            InboxMessage(
+                id=full["id"], thread_id=full["threadId"],
+                sender=_header(headers, "From"), subject=_header(headers, "Subject"),
+                body=_extract_body(full.get("payload", {})),
+            )
+        )
+    logger.info("Fetched {} unread messages since {}", len(messages), since)
+    return messages
+
+
+def get_thread(gmail_thread_id: str) -> str:
+    """Return the full thread as concatenated plain text (for reply context)."""
+    service = _service()
+    thread = service.users().threads().get(userId="me", id=gmail_thread_id, format="full").execute()
+    parts = []
+    for msg in thread.get("messages", []):
+        headers = msg.get("payload", {}).get("headers", [])
+        parts.append(
+            f"From: {_header(headers, 'From')}\n"
+            f"Subject: {_header(headers, 'Subject')}\n\n"
+            f"{_extract_body(msg.get('payload', {}))}"
+        )
+    return "\n\n---\n\n".join(parts)
+
+
 def create_draft(
     to: str, subject: str, body: str, thread_id: str | None = None
 ) -> str:
@@ -107,3 +149,13 @@ def create_draft(
     log_action("gmail_draft", f"to={to} subject={subject} draft_id={draft_id}")
     logger.info("Created Gmail draft {}", draft_id)
     return draft_id
+
+
+def _main() -> None:
+    """CLI: print the latest 5 unread subjects (verifies OAuth end-to-end)."""
+    for m in fetch_unread(max_results=5):
+        print(f"- {m.subject}  ({m.sender})")
+
+
+if __name__ == "__main__":
+    _main()

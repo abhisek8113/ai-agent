@@ -49,21 +49,57 @@ cp .env.example .env          # then fill in ANTHROPIC_API_KEY etc.
 ## Usage
 
 ```bash
-# Initialise the database
-python -m job_agent.main init
+python -m job_agent.main init             # create the database
+python -m job_agent.main scrape           # scrape all boards once
+python -m job_agent.main mail             # poll Gmail + classify once
+python -m job_agent.main tailor <job_id>  # tailor one job
+python -m job_agent.main dashboard        # launch the Streamlit UI
+python -m job_agent.main serve            # run the scheduler in foreground
+python -m job_agent.main all              # scrape + tailor + classify
 
 # Test one scraper without writing to the DB
 python -m job_agent.scrapers.cli linkedin --dry-run
-
-# Run the whole pipeline once (scrape -> tailor -> classify inbox)
-python -m job_agent.main all
-
-# Launch the review dashboard
-streamlit run job_agent/dashboard/app.py
-
-# Run the daily scheduler
-python -m job_agent.scheduler
 ```
+
+The dashboard has four tabs: **Jobs** (new postings, tailor on demand),
+**Ready to apply** (tailored resume + cover letter side by side, approve to
+queue), **Drafts** (Gmail draft replies), and **Tracker** (all applications
+with status filters and the daily count).
+
+## Troubleshooting
+
+### "59 cards found, 0 jobs saved"
+This is the classic scraper bug and it has a specific cause. Job boards append
+a per-session tracking query string (`?trk=...`, `?ref=...`) to every job URL,
+so the same posting looks unique on each scrape — then collides on the unique
+constraint and is silently dropped, leaving 0 saved.
+
+**Fixes already in the code:**
+- `_strip_query()` in `scrapers/base.py` normalises URLs to the path before
+  dedup, so the same posting dedups correctly.
+- Each scraper logs every card *before* validation
+  (`card i: title=... url=...`) and logs the reason it was dropped
+  (`skipped: missing fields` / `skipped: duplicate`).
+- `MAX_CARDS_PER_RUN` (default 25) caps a run so it finishes fast and within
+  rate limits; `polite_delay()` runs between page navigations, not per card.
+
+**How to diagnose your run:** run `python -m job_agent.scrapers.cli linkedin
+--dry-run` and read the summary line — `saved=X duplicates_dropped=Y kept=Z`.
+- `found 0 cards` → the container selector (e.g. `div.base-card`) is stale, or
+  LinkedIn served a login wall (check the logged page title).
+- `found N cards` but all `skipped: missing fields` → the inner title/url
+  selectors in that scraper's `_parse_card` need updating.
+
+### Google OAuth
+First run of any Gmail/Calendar command opens a browser for consent and caches
+`token.json`. Gmail is authorised with `gmail.compose` only — the agent can
+create drafts but can never send. Delete `token.json` to re-consent (e.g. after
+adding the Drive backup scope).
+
+### Anthropic key
+Set `ANTHROPIC_API_KEY` in `.env`. Tailoring uses Sonnet, classification uses
+Haiku (see `TAILOR_MODEL` / `CLASSIFIER_MODEL`). Agent tests mock the client,
+so they run without a key.
 
 ## Database migrations (alembic)
 

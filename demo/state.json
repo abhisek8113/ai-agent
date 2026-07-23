@@ -45,7 +45,7 @@
       "company": "Globex Corp",
       "location": "Bengaluru",
       "source": "indeed",
-      "url": "https://in.indeed.com/viewjob?jk=77120",
+      "url": "https://in.indeed.com/viewjob",
       "match_score": 48,
       "gaps": [
         "Spark",
@@ -127,23 +127,23 @@
   "actions": [
     {
       "action": "scrape",
-      "detail": "source=demo keywords=Data Scientist saved=3",
-      "at": "2026-07-22T17:51:11.562020"
+      "detail": "source=demo keywords=Data Scientist saved=3 dropped=0",
+      "at": "2026-07-23T01:10:22.743500"
     },
     {
       "action": "demo_tailor",
       "detail": "tailored 3 applications",
-      "at": "2026-07-22T17:51:11.572122"
+      "at": "2026-07-23T01:10:22.758589"
     },
     {
       "action": "gmail_draft",
       "detail": "thread=1 (simulated draft)",
-      "at": "2026-07-22T17:51:11.584162"
+      "at": "2026-07-23T01:10:22.775857"
     },
     {
       "action": "gmail_draft",
       "detail": "thread=3 (simulated draft)",
-      "at": "2026-07-22T17:51:11.597848"
+      "at": "2026-07-23T01:10:22.797361"
     }
   ]
 }

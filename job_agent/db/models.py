@@ -46,6 +46,16 @@ class ApplicationStatus(str, enum.Enum):
     SKIPPED = "skipped"
 
 
+class JobStatus(str, enum.Enum):
+    """Pipeline status tracked on the Job itself (new -> submitted)."""
+
+    NEW = "new"
+    TAILORED = "tailored"
+    APPROVED = "approved"
+    SUBMITTED = "submitted"
+    REJECTED = "rejected"
+
+
 class EmailCategory(str, enum.Enum):
     """Categories produced by the email classifier agent."""
 
@@ -76,6 +86,12 @@ class Job(Base):
     location: Mapped[str | None] = mapped_column(String(255))
     url: Mapped[str | None] = mapped_column(Text)
     description: Mapped[str | None] = mapped_column(Text)
+    salary_range: Mapped[str | None] = mapped_column(String(255))
+    posted_date: Mapped[str | None] = mapped_column(String(64))
+    match_score: Mapped[int | None] = mapped_column(Integer)
+    status: Mapped[JobStatus] = mapped_column(
+        Enum(JobStatus), default=JobStatus.NEW, nullable=False
+    )
     posted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     scraped_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, nullable=False
@@ -104,6 +120,8 @@ class Application(Base):
     gaps: Mapped[list | None] = mapped_column(JSON)
     keywords_used: Mapped[list | None] = mapped_column(JSON)
     approved_by_human: Mapped[bool] = mapped_column(Boolean, default=False)
+    human_approved_by: Mapped[str | None] = mapped_column(String(255))
+    notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, nullable=False
     )
@@ -125,14 +143,18 @@ class EmailThread(Base):
         String(255), unique=True, nullable=False
     )
     sender: Mapped[str | None] = mapped_column(String(512))
+    from_email: Mapped[str | None] = mapped_column(String(512))
     subject: Mapped[str | None] = mapped_column(Text)
     category: Mapped[EmailCategory] = mapped_column(
         Enum(EmailCategory), default=EmailCategory.OTHER, nullable=False
     )
     urgency: Mapped[str | None] = mapped_column(String(16))
     requires_reply: Mapped[bool] = mapped_column(Boolean, default=False)
+    company: Mapped[str | None] = mapped_column(String(512))
+    role: Mapped[str | None] = mapped_column(String(512))
     extracted: Mapped[dict | None] = mapped_column(JSON)
     summary: Mapped[str | None] = mapped_column(Text)
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, nullable=False
     )
@@ -156,10 +178,12 @@ class Reply(Base):
     body_md: Mapped[str | None] = mapped_column(Text)
     tone_notes: Mapped[str | None] = mapped_column(Text)
     confidence: Mapped[int | None] = mapped_column(Integer)
+    requires_human_rewrite: Mapped[bool] = mapped_column(Boolean, default=False)
     gmail_draft_id: Mapped[str | None] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, nullable=False
     )
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     thread: Mapped["EmailThread"] = relationship(back_populates="replies")
 
