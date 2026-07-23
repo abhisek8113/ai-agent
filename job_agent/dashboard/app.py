@@ -171,7 +171,24 @@ def tab_jobs(profile: dict, filters: dict, resume: str) -> None:
         scored.append((fit, job))
     scored.sort(key=lambda t: t[0], reverse=True)
 
-    st.caption(f"{len(scored)} of {len(jobs)} jobs match your filters.")
+    head = st.columns([3, 1])
+    head[0].caption(f"{len(scored)} of {len(jobs)} jobs match your filters.")
+    if head[1].button(f"Tailor all {len(scored)}", disabled=not scored):
+        if not resume:
+            st.warning("Upload a master resume first (sidebar).")
+        else:
+            progress = st.progress(0.0, text="Tailoring…")
+            done = 0
+            for i, (_fit, job) in enumerate(scored):
+                try:
+                    _tailor(job.id, resume)
+                    done += 1
+                except Exception as exc:  # keep going if one job fails
+                    st.warning(f"Skipped {job.title}: {exc}")
+                progress.progress((i + 1) / len(scored), text=f"Tailored {done}/{len(scored)}")
+            log_action("bulk_tailor", f"tailored={done}")
+            st.success(f"Tailored {done} jobs — see the 'Ready to apply' tab.")
+            st.rerun()
     for fit, job in scored:
         with st.container(border=True):
             top = st.columns([6, 1])
