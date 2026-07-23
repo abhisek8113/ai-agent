@@ -22,11 +22,13 @@ from job_agent.db.models import (
     Job,
 )
 from job_agent.db.session import get_session, log_action
+from job_agent.scrapers.apis import API_SCRAPERS
 from job_agent.scrapers.indeed import IndeedScraper
 from job_agent.scrapers.linkedin import LinkedInScraper
 from job_agent.scrapers.naukri import NaukriScraper
 
-SCRAPERS = (LinkedInScraper, NaukriScraper, IndeedScraper)
+# HTML scrapers first, then the reliable API-based sources (10+ total).
+SCRAPERS = (LinkedInScraper, NaukriScraper, IndeedScraper, *API_SCRAPERS)
 
 
 def load_candidate_profile() -> dict:
@@ -84,6 +86,14 @@ def tailor_new_jobs(limit: int = 20) -> int:
         except Exception as exc:
             logger.exception("Tailoring failed for job {}: {}", job.id, exc)
             continue
+        # Render the freshly tailored resume to a file, one per job.
+        try:
+            from job_agent.render import render_resume
+
+            render_resume(result.tailored_resume_md, job.company or "", job.title or "", job.id)
+        except Exception as exc:
+            logger.warning("Resume render failed for job {}: {}", job.id, exc)
+
         with get_session() as session:
             session.add(
                 Application(

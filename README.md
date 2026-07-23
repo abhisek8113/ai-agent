@@ -66,6 +66,19 @@ The dashboard has four tabs: **Jobs** (new postings, tailor on demand),
 queue), **Drafts** (Gmail draft replies), and **Tracker** (all applications
 with status filters and the daily count).
 
+## Job sources (10)
+
+| Type | Sources | Notes |
+|------|---------|-------|
+| HTML scrapers | linkedin, naukri, indeed | Playwright + stealth; selectors may need tuning, LinkedIn/Naukri fight bots |
+| Public APIs (no key) | remotive, remoteok, arbeitnow, jobicy | Reliable JSON feeds, remote-focused |
+| Company portals (no key) | greenhouse, lever | Set `GREENHOUSE_COMPANIES` / `LEVER_COMPANIES` to the companies you target |
+| Aggregator (free key) | adzuna | Set `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` (developer.adzuna.com) — covers many boards |
+
+A fresh **tailored resume file is rendered per job** into `output/resumes/`
+(`.html` + `.md`, plus `.pdf` if WeasyPrint is installed) — open the HTML and
+print to PDF.
+
 ## Troubleshooting
 
 ### "59 cards found, 0 jobs saved"

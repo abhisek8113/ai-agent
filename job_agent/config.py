@@ -66,6 +66,19 @@ class Settings(BaseSettings):
     # dozens of results doesn't blow past the rate limit or run for minutes.
     max_cards_per_run: int = Field(default=25, alias="MAX_CARDS_PER_RUN")
 
+    # --- Extra job sources (API-based; more reliable than HTML scraping) ---
+    # Comma-separated Greenhouse board tokens for specific companies you target,
+    # e.g. "stripe,airbnb". Each is a company career portal on Greenhouse.
+    greenhouse_companies: str = Field(default="", alias="GREENHOUSE_COMPANIES")
+    # Comma-separated Lever company slugs, e.g. "netflix,plaid".
+    lever_companies: str = Field(default="", alias="LEVER_COMPANIES")
+    # Adzuna aggregator (free key at developer.adzuna.com) — covers many boards.
+    adzuna_app_id: str = Field(default="", alias="ADZUNA_APP_ID")
+    adzuna_app_key: str = Field(default="", alias="ADZUNA_APP_KEY")
+    adzuna_country: str = Field(default="in", alias="ADZUNA_COUNTRY")
+    # Where rendered resume files are written, one per application.
+    resume_output_dir: str = Field(default="output/resumes", alias="RESUME_OUTPUT_DIR")
+
     def resolve(self, relative: str) -> Path:
         """Resolve a path setting against the project root if not absolute."""
         p = Path(relative)
