@@ -67,11 +67,28 @@ class Settings(BaseSettings):
     max_cards_per_run: int = Field(default=25, alias="MAX_CARDS_PER_RUN")
 
     # --- Extra job sources (API-based; more reliable than HTML scraping) ---
-    # Comma-separated Greenhouse board tokens for specific companies you target,
-    # e.g. "stripe,airbnb". Each is a company career portal on Greenhouse.
-    greenhouse_companies: str = Field(default="", alias="GREENHOUSE_COMPANIES")
-    # Comma-separated Lever company slugs, e.g. "netflix,plaid".
-    lever_companies: str = Field(default="", alias="LEVER_COMPANIES")
+    # Comma-separated Greenhouse board tokens (company career portals). This
+    # default list covers many companies that hire data scientists; unknown or
+    # non-Greenhouse tokens are skipped gracefully. Override in .env to target
+    # your own shortlist.
+    greenhouse_companies: str = Field(
+        default=(
+            "stripe,airbnb,dropbox,coinbase,robinhood,databricks,discord,gitlab,"
+            "figma,brex,plaid,doordash,instacart,lyft,reddit,twitch,cloudflare,"
+            "asana,benchling,samsara,rippling,ramp,gusto,affirm,sofi,wealthfront,"
+            "mongodb,hashicorp,elastic,confluent,snyk,razorpay,postman,mixpanel,"
+            "flexport,nerdwallet,thumbtack,creditkarma,pinterest,squarespace"
+        ),
+        alias="GREENHOUSE_COMPANIES",
+    )
+    # Comma-separated Lever company slugs (company career portals).
+    lever_companies: str = Field(
+        default=(
+            "netflix,spotify,kickstarter,plaid,brex,ramp,attentive,mercury,"
+            "notion,verkada,gopuff,cohere,huggingface,scale"
+        ),
+        alias="LEVER_COMPANIES",
+    )
     # Adzuna aggregator (free key at developer.adzuna.com) — covers many boards.
     adzuna_app_id: str = Field(default="", alias="ADZUNA_APP_ID")
     adzuna_app_key: str = Field(default="", alias="ADZUNA_APP_KEY")

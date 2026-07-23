@@ -72,7 +72,7 @@ with status filters and the daily count).
 |------|---------|-------|
 | HTML scrapers | linkedin, naukri, indeed | Playwright + stealth; selectors may need tuning, LinkedIn/Naukri fight bots |
 | Public APIs (no key) | remotive, remoteok, arbeitnow, jobicy | Reliable JSON feeds, remote-focused |
-| Company portals (no key) | greenhouse, lever | Set `GREENHOUSE_COMPANIES` / `LEVER_COMPANIES` to the companies you target |
+| Company portals (no key) | greenhouse (40 cos), lever (14 cos) | Ships with ~54 well-known companies pre-configured; override `GREENHOUSE_COMPANIES` / `LEVER_COMPANIES` in `.env` for your own shortlist. Unknown tokens are skipped gracefully. |
 | Aggregator (free key) | adzuna | Set `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` (developer.adzuna.com) — covers many boards |
 
 A fresh **tailored resume file is rendered per job** into `output/resumes/`
